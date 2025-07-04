@@ -1,0 +1,37 @@
+- abhi tum js kaha run karte ho browser par - node js kya karta hai tumhe funcitonality  deta hai js ko browser ke bahar run karne ki 
+- node js -- javascript run time environment - js ke code ko browser ke bahar run karna 
+- agar hamne browser se V8 engine hata diya toh browser js run nahi kar payega 
+
+- packages - aisa code jo tumhe nahi likha hai - par tum use kar sakte ho 
+
+- har class ka naya folder create karna 
+- npm i cat-me - toh ye hum kar kya rahe is command se - cat-me naam se code npm pe pada huva hai vo code hum apne system pe la rahe hai 
+- node modules me hum jo bhi packages dowload kart hai uska code reheta hai 
+- package.json - jitne bhi package aapne install kiye hai unko manage karta hai 
+- require - ka matlab jo hum ne package install kiya hai use hum use karna chahte hai
+
+- tum pahele npm i cat-me karte the phir 
+- var catMe = require('cat-me')
+
+- par jab tum http use karna chahte ho toh 
+- tum directly 
+- let http = require('http') 
+- aisa kuchh likh rahe ho
+
+
+- const http = require('http')
+- http.createServer()// server create ho gaya hai
+
+-- server ek machine hai jisko program kiya jata hai ki jab bhi request aaye tum uska kuchh response dena
+
+const http = require('http')
+
+
+const server = http.createServer()// server create ho gaya hai
+
+
+server.listen(3000,()=>{// isline mein sever start kar rahe ho
+    console.log('Server is running on port 3000');// ye wala jo call back hai vo tab chalega jab server start hoga 
+})
+
+const server = http.createServer()// server create ho jata hai - lekin tumne abhi server ko program nahi kiye ho 
