@@ -1,12 +1,25 @@
-const express = require('express')// require 
+const express = require('express')
 
+const app = express()// server start ho gaya hai 
 
-const app = express()// create server    
+app.use(express.json())
 
-// lets program the server 
-// /home => welcome to home page
+// notes - "title & description"
 
+let notes = []
 
-app.listen(3000,()=>{// start the server
-    console.log('Server is running on port 3000');
+app.post('/notes',(req,res)=>{
+    console.log(req.body);
+    notes.push(req.body)
+    res.json({
+        message : "note added successfully"
+    })
+})
+
+app.get('/notes',(req,res)=>{ 
+    res.json({notes})
+})
+
+app.listen(3000,()=>{
+    console.log('server is running on port 3000');
 })

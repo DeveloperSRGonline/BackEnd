@@ -1,0 +1,34 @@
+jarmani ke kisi machine ssd ya hsd hogi uske upar hum apna data store karte hai when  we use database 
+
+data base se connect karne ka logic server.js mein nahi aata - src folder ke andar db folder ke andar db.js file mein jata hai
+
+mongoose.connect - ye database ko server se connect karen ka kaam karta hai
+ye connect kis se honge internet ke madat se so internet ka kuchh bhrosa nahi 
+isliye hum .then ka use karte hai yane jab bhi connection  ho jaye .then chal jayega 
+
+
+jo function mein banaye ho db.js mein usko exporet karke server.js mein require karke call karna padta hai ye production demand karta hai 
+
+
+schema 
+note - title , content -- note ka structure 
+
+ye kaha  model folder ke andar bahaoge as name 
+note.model.js
+note ke jagah tum jo chij bana rahe ho us chij ko likhoge 
+
+similar type data ka group (collection) - model make easy to perform operation (crud) on the corresponding collection
+
+
+const noteModel = mongoose.model('note',noteSchema)
+ismein ye jo note likha hai ye collection ka naam hai  
+
+kuchh bhi operation perform karva ne ke liye tumhe model ki jarurat padegi 
+server.js mein is require karenge 
+
+steps 
+- server start 
+- connect to DB
+- schema
+- model
+- CRUD

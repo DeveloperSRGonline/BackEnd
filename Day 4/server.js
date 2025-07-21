@@ -1,50 +1,52 @@
-const cors = require('cors');
+const express = require('express')// express create for use 
 
-const express = require('express')
 
-const app = express()
-app.use(cors());
+const app = express() // server create ho gaya 
 
-app.use(express.json())// middleware
+app.use(express.json())
 
 let notes = []
+
+app.get('/',(req,res)=>{
+    res.send('Hello shivam')
+})
+
+// POST /notes -> {title , content}
+
 app.post('/notes',(req,res)=>{
     console.log(req.body);
     notes.push(req.body)
+
     res.json({
-        message:"note added successfully"
+        message : "note added successfully",
+        notes : notes
     })
-    // console.log(notes);
 })
-
-app.get('/notes',(req,res)=>{
-    console.log("All notes:", notes);
-    res.json(notes)
-})
-
 
 app.delete('/notes/:index',(req,res)=>{
     const index = req.params.index
     delete notes[index]
     res.json({
-        message:"note deleted"
+        message:"note deleted successfully"
     })
 })
 
 app.patch('/notes/:index',(req,res)=>{
     const index = req.params.index
-    const { title , content } = req.body
+    const { title } = req.body
 
-     console.log("PATCH Body:", req.body);
     notes[index].title = title
-    notes[index].content = content
-
     res.json({
-        message:"note updated",
-        updatedNote: notes[index]
+        message:"notes updated successfully!"
     })
 })
 
-app.listen(3000,()=>{
-    console.log("server is running on port 3000");
+app.get('/notes',(req,res)=>{
+     res.json(notes);
 })
+
+app.listen(3000,()=>{
+    console.log('server is started!');
+})
+
+

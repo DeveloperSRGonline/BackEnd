@@ -1,0 +1,96 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+html,
+body {
+  height: 100%;
+  width: 100%;
+  background-color: #121212;
+  color: #fff;
+  font-family: "Poppins", sans-serif;
+  padding: 2rem;
+}
+
+.mood-songs {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.mood-songs h2 {
+  font-size: 1.8rem;
+  margin-bottom: 2rem;
+  color: #fff;
+  text-align: center;
+}
+
+.song-card {
+  width: 100%;
+  /* background: #1e1e1e; */
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1.2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s;
+}
+
+.song-card:hover {
+  background-color: #1c1c1c;
+}
+
+.info h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #fff;
+}
+
+.info p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #aaa;
+}
+
+.player {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 50%;
+}
+
+.controls {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.controls button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  background: linear-gradient(90deg, #00dfd8, #007cf0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.progress-bar {
+  flex-grow: 1;
+  height: 6px;
+  background-color: #333;
+  border-radius: 5px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.progress {
+  height: 100%;
+  background: linear-gradient(90deg, #00dfd8, #007cf0);
+  transition: width 0.3s ease;
+}

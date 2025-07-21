@@ -1,0 +1,45 @@
+jo file aa rahai hai form data se usse hume kahi na kahi toh store karna padega , memory storage kya hai ye ek server ki ram hai (temperary storage)
+ 
+we use form data to do it because we will not send file in raw format
+string fromet - raw
+files - form data
+song ka data ye ek resource ki tarah hai 
+title
+artist 
+audiofile
+
+
+express.json() - ye tab kaam mein aata hai jab hum raw se data bhejte hain
+lekin form data se jab tum data bhejte ho tab multer ka use hota hai 
+
+
+upload.single("audio") - itna likne ke baad req.body ab data padhne lagega 
+lekin abhi bhi ek chij missing hai , file ka data nahi aa raha hai 
+song ki file aayegi - req.file mein 
+
+vo jo initialization wala code 
+imagekit kya hai cloud storage provider
+ye kya hai third party service jinko hum kabhi change kar sakte hai, is liye hum iske liye complete alag file create karte hai 
+aap service folder ke andar storage.service.js file me lilkhe ho 
+
+aap ke backend ke server pe file aayegi ,idhar se file kaha pe jayegi imagekit ke server pe jayegi 
+ab idhar se imagekit ke server pe jane mein kitna time lagega ye ham ko pata nahi , vo do chij pe depend karega img ka size and internet ki speed par 
+ab is chij ke do scenerio ho sakte hai hamare server se image kit ke server pe pohach jayegi, dusra server se imagekit ke server pe ja rahi thi bich mein kuchh error aa gaya 
+
+  console.log(req.body);
+  console.log(req.file);
+  const fileData = await uploadFile(req.file)// uploadFile is function ki madat se file ka data imagekit pe upload kar raha hai and vo hame file ka data fileData is variable mein return kar raha hai 
+  console.log(fileData);
+  res.status(201).json({
+    message: "Song created successfully",
+    song: req.body,
+    file: req.file.originalname,
+  }); ye bare minimum toh aap ne kaam kar liye lekin implement achhe se karna bhi hota hai 
+
+
+  normal developer and clean code likhne wale develper mein farak hota hai
+
+  ab hamein mongo db mein ye jo song aaya hai usko save karna hai 
+
+
+

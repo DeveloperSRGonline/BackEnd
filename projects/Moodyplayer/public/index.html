@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Moody Player</title>
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+  <script defer src="script.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>🎧 Moody Player</h1>
+
+    <video id="video" autoplay muted></video>
+
+    <h3>Mood: <span id="mood-label">Not detected</span></h3>
+
+    <button id="detect-btn">Detect Mood</button>
+
+  </div>
+  <div id="songs-list"></div>
+</body>
+</html>
