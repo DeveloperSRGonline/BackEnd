@@ -1,0 +1,4 @@
+-- request kaha par kiya postman ne server pe - / api pe gai phir kaha pe gai app pe gai, app ko kya pata chalta hai router ke pass api exist karti hai 
+app aur router ke bich middleware laga huva hai toh ab jo bhi request jayegi vo middleware ke through jayegi
+
+application level middleware ka example hai - express.json()

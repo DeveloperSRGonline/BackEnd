@@ -1,0 +1,10 @@
+x.com me server pe let say 3 user request kar rahe hai A , B , C 
+ab req kis chij ki ho sakti hai post , etc.
+ab req aa rahi hai ye x.com ko kaise pata chalta hai with the help of authenti cation system
+aap jab x.com pe account create karte ho tak vo token create karta hai 
+- userdata (token) ke andar - server hi token create karta hai
+in this case A user ka data token A mein rahega same with other 
+token naam ka kuchh hota hai 
+
+token A - A user token toh rakhega apne and uski copy server ke pass bhejega 
+token ka expiration period raheta hai
