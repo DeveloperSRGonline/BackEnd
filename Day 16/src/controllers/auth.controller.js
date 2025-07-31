@@ -5,7 +5,10 @@ const jwt = require("jsonwebtoken"); // token ke liye jwt require kar lete hai
 // npm i cookie-parser - isko bhi install kar lena token ko cookie mein save karne ke liye
 const cookieParser = require("cookie-parser");
 // ab hamein jwt secret ki jarurat padegi - use .env file me kis variable mein save karke use kar lena
+const bcrypt = require('bcryptjs')
 
+
+// register ka pura logic yaha
 async function registerController(req, res) {
   const { username, password } = req.body;
 
@@ -21,7 +24,7 @@ async function registerController(req, res) {
   // agar user exist nahi karta hoga tab toh hum naya user create karenge - abously ye user hi create karega
   const user = await userModel.create({
     username,
-    password,
+    password: await bcrypt.hash(password,10), // jo 10 hai usko salt bolte hai
   });
 
   // new token create create for new user
@@ -30,7 +33,7 @@ async function registerController(req, res) {
   });
 
   // token generate hone ke baad cookie ke andar token ko save kar denge
-  res.cookie('token',token) // "token" is naam se line number 28 ka token save kar rahe hai
+  res.cookie("token", token); // "token" is naam se line number 28 ka token save kar rahe hai
 
   // after successfull registeration ye message res mein bhej denge
   return res.status(201).json({
@@ -38,40 +41,43 @@ async function registerController(req, res) {
   });
 }
 
+
+// login ka pura logic yaha
 async function loginController(req, res) {
   const { username, password } = req.body;
 
+  // we check ki user present hai ya nahi
   const user = await userModel.findOne({ username });
 
-  // if user nahi mila toh ye karna
+  //if user nahi milta hai
   if (!user) {
     return res.status(400).json({
       message: "User not found",
     });
   }
-  // agar user mila toh password check karenge
-  const isPasswordValid = user.password === password;
 
-  // if password barabar nahi toh
+  //if user milta hai tab password check karna hai
+  // const isPasswordValid = user.password === password;
+  const isPasswordValid = bcrypt.compare(password,user.password)
+
+  // agar password barabar nahi hota hai toh
   if (!isPasswordValid) {
-    return res.status(404).json({ message: "Invalid password" });
+    return res.status(400).json({ message: "Invalid password" });
   }
 
-  // if password valid then
-  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+  //if password valid toh hum token create karenge
+  const token = jwt.sign({id:user._id},process.env.JWT_SECRET)
 
-  // token generate kar lenge after login
-  res.cookie("token", token);
-
-  // res send kar denge
+  //token generate hone ke baad finally response send kar denge ki
   res.status(200).json({
-    message: "User logged in successfully!",
-    user: {
-      username: user.username,
-      id: user._id,
-    },
-  });
+    message:"User logged in successfully",
+    user:{
+      username:user.username,
+      id:user._id
+    }
+  })
 }
+
 
 module.exports = {
   registerController,
