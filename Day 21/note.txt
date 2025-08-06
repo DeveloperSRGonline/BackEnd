@@ -1,0 +1,49 @@
+jo ai hote hai vo yaad kaise rakhate hai ye hamein dekhn hai 
+for example hum gpt se baad karte hai and vo hamari detail yaad rakhta hai 
+
+Types of memory
+1.short term memory(STM)
+2.long term memory(LTM)
+
+
+In long term memory(use vector database) - specifically Retrieval-Augmented Generation (RAG) is an AI framework that combines the strengths of traditional information retrieval systems with generative large language models (LLMs).
+- basically ye numbers ke basis par chije yaad rakhta hai
+
+- hum abhi short term ka use kar ke chatbot banayenge
+- abhi ke liye ye samjhte hai ki llm ke program hote hai
+
+do type ki memory hoti hai 
+short term memory 
+long term memory
+
+RAG - Retrival Augumented Generation
+
+chatbot by default chats ko yaad nahi rakhta hai inmein ye functionality add ki jati hai 
+
+LLM - ek program(for understanding)
+LLM by default inputs ko yaad nahi rakhta hai use ye functionality di jati hai
+
+
+short term memory - ye text based memory hoti hai - 10 - 15 conversion ke liye (chhote conversion ke liye) 
+long term memory - ye vector based memory hoti hai - and jab bohat saare conversion ki baat aati hai toh ye memory use hoti hai 
+
+AI ki achhi baat hai ki - jo sabhi ai hote hai vo lag bhag same logic(concept) follow karte hai
+
+server khud se data bhej hi nahi sakta client ko jab client req karega tab hi server data bhejega
+
+websocket ki madat se client and server ke bich mein connection ban jata hai and ye connection directly ban nahi hota jab tak ki client ya server khud se band na kar le
+
+toh ab hota kya hai client ko server ko kuchh bhejna raheta hai toh vo ye connection ke through bhej sakta hai ya server ko bhi kuchh bhjna raha toh is connection ke through bhej sakta hai
+
+-- ab hota kya hai is connection ki vagah se server bina client ki req ke client ko data bhej sakta hai  - yahi hota hai two way communication "bidirectional" communication and dusra "persistant" connection
+bidirectional matlab server bhi bhej sakta hai and client bhi data bhej sakta hai
+
+http mein kya hota hai har chij ke liye server ke saath connection banana padta hai - har req pe ek naya connection banta hai and jaise response aata hai vo connection break ho jata hai - is chij mein time bohat jyada lagta hai - websocket mein baar baar connection nahi banana padta hai and real time communication hota hai and low latency raheti hai 
+
+ex. whatsapp
+
+web socket ye ek protocol hai us protocol ko hum implement karte hai with the help of library socket.io
+
+iska engine bhi hota hai 
+
+jo socket io hai vo websocket toh use karta hi karta hai but as a fallback http-long polling ya web-transport bhi use karta hai 
