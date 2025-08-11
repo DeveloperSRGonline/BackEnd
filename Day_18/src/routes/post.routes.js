@@ -7,7 +7,7 @@ const { createPostController } = require("../controllers/post.controller");
 
 const upload = multer({storage:multer.memoryStorage()})
 
-router.post("/", authMiddleware,upload.single("image"),createPostController);
+router.post("/",authMiddleware,upload.single("image"),createPostController);
 
 module.exports = router;
     

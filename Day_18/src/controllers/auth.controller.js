@@ -9,7 +9,7 @@ const bcrypt = require('bcryptjs')
 
 
 // register ka pura logic yaha
-async function registerController(req, res) {
+async function registerController(req, res) { 
   const { username, password } = req.body;
 
   // user ko find karenge username ke basis par ki user exist karta hai ya unique hai

@@ -47,3 +47,26 @@ web socket ye ek protocol hai us protocol ko hum implement karte hai with the he
 iska engine bhi hota hai 
 
 jo socket io hai vo websocket toh use karta hi karta hai but as a fallback http-long polling ya web-transport bhi use karta hai 
+
+
+4 chije ratlo
+io - server
+socket - single user
+
+on - event listen karna 
+emit - event fire karna
+
+
+built-in event 
+- connection 
+- disconnect
+
+custom event
+- kuchh bhi naam se event bana sakte hai
+
+ai-message ke upar listner laga diya and jab bhi is event pe kuchh bhi chij hogi toh iske andar ka call back function chalega
+ye event server pe laga hai toh event kaha se fire hoga frontend se
+same agar listner client side pe laga diya toh event kon fire karega server
+socket.on('ai-message')
+
+hum jis naam ka listner lagaya hai server mein us naam event frontend (postman) se bhejenge 

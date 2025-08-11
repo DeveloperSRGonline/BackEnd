@@ -9,7 +9,8 @@ function connectToDB() {
     )
     .then(() => {
       console.log("connected to DB!");
-    });
+    })
+    
 }
 
 module.exports = connectToDB;

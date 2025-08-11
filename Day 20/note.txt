@@ -47,3 +47,27 @@ web socket ye ek protocol hai us protocol ko hum implement karte hai with the he
 iska engine bhi hota hai 
 
 jo socket io hai vo websocket toh use karta hi karta hai but as a fallback http-long polling ya web-transport bhi use karta hai 
+
+
+class 21:
+
+http - req,res - ke basis par communicate karvata hai (express)
+socket io - event based communication
+
+io - pura server
+socket - single user
+
+jis time pe user socket io ki madat se server se connect ho tab ye call back chalaa hai
+
+types of event
+inbuilt - connection , disconnect - connect hone par connection fire hoga and disconnect hone par disconnect event fire hoga
+custom events 
+
+
+
+socket.on("message", () => {
+    console.log('Message recived!');
+  }); // message likha hai uske jagah kuchh bhi likha sakte ho chacha mama dada baba
+
+
+  frontend se message event ko fire kiya  
