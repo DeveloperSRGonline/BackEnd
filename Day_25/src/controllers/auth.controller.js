@@ -1,4 +1,4 @@
-const usermodel = require("../models/user.model");
+const userModel = require("../models/user.model");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
@@ -9,7 +9,7 @@ async function getRegisterController(req, res) {
 async function postRegisterController(req, res) {
   const { username, email, password } = req.body;
 
-  const isUserExist = await usermodel.findOne({
+  const isUserExist = await userModel.findOne({
     $or: [{ username: username }, { email: email }],
   });
 
@@ -21,7 +21,7 @@ async function postRegisterController(req, res) {
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  const user = await usermodel.create({
+  const user = await userModel.create({
     username: username,
     email: email,
     password: hashedPassword,
@@ -31,43 +31,37 @@ async function postRegisterController(req, res) {
 
   res.cookie("token", token);
 
-  return res.status(201).json({
-    message: "User registered successfully!",
-    user: user,
-  });
+  return res.redirect('/')
 }
 
 async function getLoginController(req, res) {
    res.render('login')
 }
 
-async function postLoginController(req,res){
-    const {email,password} = req.body;
+async function postLoginController(req, res) {
+    const { email, password } = req.body;
 
-    const user = await usermodel.findOne({
-        email:email
+
+
+    const user = await userModel.findOne({
+        email: email
     })
 
-    if(!user){
-        return res.redirect('/login?error=User not found')
+    if (!user) {
+        return res.redirect('/login?error=User not found');
     }
 
-    const isPasswordValid = await bcrypt.compare(password,user.password)
 
-    if(!isPasswordValid){
-        return res.redirect('/login?error=Invalid password')
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+        return res.redirect('/login?error=Invalid password');
     }
 
-    const token = jwt.sign({
-        id:user._id,
-    },process.env.JWT_SECRET)
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
 
-    res.cookie('token',token)
+    res.cookie('token', token);
 
-    return res.status(200).json({
-        message:"User logged in successfully!",
-        user:user
-    })
+    return res.redirect("/")
 }
 
 

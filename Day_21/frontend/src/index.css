@@ -66,3 +66,22 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+.message-text code {
+  background: #2d2d2d;
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-family: monospace;
+}
+
+.message-text pre {
+  background: #2d2d2d;
+  padding: 10px;
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+.message-text h1, .message-text h2, .message-text h3 {
+  margin-top: 10px;
+  margin-bottom: 5px;
+  color: #fff;
+}

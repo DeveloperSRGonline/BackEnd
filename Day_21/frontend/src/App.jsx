@@ -1,34 +1,14 @@
 import { useState, useEffect } from "react";
 import { io } from "socket.io-client";
-import "./text.css";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeHighlight from "rehype-highlight";
+import "highlight.js/styles/github-dark.css"; // Change theme if needed
+import "./App.css";
 
 function App() {
   const [socket, setSocket] = useState(null);
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      text: "Hello! How can I help you today?",
-      sender: "bot",
-    },
-    {
-      id: 2,
-      text: "Can you tell me about your services?",
-      timestamp: "10:01 AM",
-      sender: "user",
-    },
-    {
-      id: 3,
-      text: "Of course! We provide AI-powered chat assistance for all kinds of queries.",
-      sender: "bot",
-    },
-    {
-      id: 2,
-      text: "Can you tell me about your services?",
-      timestamp: "10:01 AM",
-      sender: "user",
-    },
-  ]);
-
+  const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState("");
 
   const handleSendMessage = () => {
@@ -42,9 +22,7 @@ function App() {
     };
 
     setMessages((prevMessages) => [...prevMessages, userMessage]);
-
     socket.emit("ai-message", inputText);
-
     setInputText("");
   };
 
@@ -65,7 +43,7 @@ function App() {
     socketInstance.on("ai-message-response", (response) => {
       const botMessage = {
         id: Date.now() + 1,
-        text: response,
+        text: response, // Keep as markdown text
         timestamp: new Date().toLocaleTimeString(),
         sender: "bot",
       };
@@ -90,7 +68,38 @@ function App() {
               }`}
             >
               <div className="message-content">
-                <span className="message-text">{message.text}</span>
+                {message.sender === "bot" ? (
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    rehypePlugins={[rehypeHighlight]}
+                    components={{
+                      p: ({ children }) => (
+                        <p className="message-text">{children}</p>
+                      ),
+                      code: ({
+                        node,
+                        inline,
+                        className,
+                        children,
+                        ...props
+                      }) => (
+                        <code
+                          className={`${className || ""} markdown-code`}
+                          {...props}
+                        >
+                          {children}
+                        </code>
+                      ),
+                      pre: ({ children }) => (
+                        <pre className="markdown-pre">{children}</pre>
+                      ),
+                    }}
+                  >
+                    {message.text}
+                  </ReactMarkdown>
+                ) : (
+                  <span className="message-text">{message.text}</span>
+                )}
                 <span className="message-timestamp">{message.timestamp}</span>
               </div>
             </div>

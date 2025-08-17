@@ -1,13 +1,14 @@
 require("dotenv").config();
-const app = require("src/app");
+const app = require("./src/app");
 const { createServer } = require("http");
 const { Server } = require("socket.io");
 const generateResponse = require("./service/ai.service");
+const cors = require('cors')
 
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: "http://localhost:5174",
   },
 });
 
@@ -21,7 +22,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("ai-message", async (data) => {
-    console.log("Ai message recived : ", data);
+    // console.log("Ai message recived : ", data);
 
     // use ke ques pushing in chatHistory
     chatHistory.push({
@@ -37,7 +38,7 @@ io.on("connection", (socket) => {
       role: "model",
       parts: [{ text: AIResponse }],
     });
-    console.log("AI response : ", AIResponse);
+    // console.log("AI response : ", AIResponse);
     // jo listner postman pe laga hai vaha hum server se fire kar rahe airesponse ko
     socket.emit("ai-message-response", AIResponse);
   });

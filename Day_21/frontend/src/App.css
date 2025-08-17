@@ -1,31 +1,23 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
 html,
 body,
-root {
-  height: 100%;
-  width: 100%;
+#root {
+  height: 100vh;
+  width: 100vw;
+  margin: 0;
+  padding:0;
   background-color: #f7f7f7;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  font-family: Arial, Helvetica, sans-serif;
 }
-/* Main Container */
+
+
 .chat-container {
-  width: 100%;
-  max-width: 1000px; /* Make it wider on desktop */
-  height: 90%;
+  width: 60%;
+  height: 100%;
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  gap: 1rem;
   background-color: #f7f7f7;
-  border-radius: 12px;
-  overflow: hidden;
+  margin: 0 auto;
 }
 
 /* Chat Header */
@@ -55,6 +47,7 @@ h1 {
   align-items: center;
   justify-content: center;
   height: 100%;
+  width: 100%;
   color: #6c757d;
   font-style: italic;
 }
@@ -118,14 +111,14 @@ h1 {
   display: flex;
   padding: 0.75rem 1rem;
   border-top: 1px solid #e9ecef;
-  background-color: #f8edeb;
   gap: 0.5rem;
   flex-shrink: 0;
+  margin-bottom: 2rem;
 }
 
 .input-field {
   background-color: #fff;
-  color: #333;
+  color: #000;
   caret-color: orangered;
   caret-shape: bar;
   flex: 1;
@@ -145,16 +138,17 @@ h1 {
 }
 
 .input-field:focus {
-  box-shadow: 0 0 0 3px rgba(255, 174, 0, 0.3); /* glowing effect */
+  box-shadow: 0 0 0 3px rgba(255, 174, 0, 0.3);
+  color: #000;
 }
 
 .input-field::placeholder {
-  color: #6c757d;
+  color: #000000;
   transition: color 0.2s ease;
 }
 
 .input-field:focus::placeholder {
-  color: #aaa;
+  color: #000000;
 }
 
 /* Send Button */
@@ -204,7 +198,6 @@ h1 {
     transform: scale(1);
   }
 }
-
 
 /* Scrollbar */
 .chat-messages::-webkit-scrollbar {
@@ -259,7 +252,7 @@ h1 {
 
   .send-button {
     font-size: 0.95rem;
-    margin-bottom:1.5rem;
+    margin-bottom: 1.5rem;
     padding: 0.6rem 1rem;
   }
 
