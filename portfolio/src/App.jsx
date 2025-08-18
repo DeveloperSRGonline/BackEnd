@@ -1,13 +1,13 @@
 import Navbar from "./components/Navbar"
-
+import Page_1 from "./components/Page_1"
+import Page_2 from "./components/Page_2"
 
 const App = () => {
   return (
     <div>
       <Navbar />
-      <div className="hero">
-        <h1>I'm <span>Shivam</span><span> <img src="" alt="" /> </span></h1>
-      </div>
+      <Page_1 />
+      <Page_2 />
     </div>
   )
 }

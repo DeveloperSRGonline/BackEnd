@@ -1,4 +1,5 @@
 import React from 'react'
+import "../styles/Navbar.css";
 
 const Navbar = () => {
     return (
@@ -7,7 +8,7 @@ const Navbar = () => {
                 <h3><i>Shivam</i></h3>
             </div>
             <div className="menu">
-                <img src="" alt="" />
+                <img src="/images/menu.svg" alt="" />
             </div>
         </div>
     )
