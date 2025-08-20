@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // Load environment variables from .env file into process.env
 // Example: process.env.MONGO_URI will be available after this
 require('dotenv').config()
@@ -29,3 +30,17 @@ httpServer.listen(3000, () => {
 
 // The callback (arrow function) runs after the server starts
 // It confirms the server is ready to accept requests (GET, POST, etc.)
+=======
+// jo .env file ke andar create karte hai unko easily create kiy ja sakta hai
+require('dotenv').config()
+// use app exported from app.js
+const app = require('./src/app')
+const connectToDB = require('./src/db/db')
+
+connectToDB()
+
+// start the server 
+app.listen(3000,()=>{
+    console.log('Server is running on port 3000!');
+})
+>>>>>>> a6942f1333efaaef66b438133ce6d465941ebd5d

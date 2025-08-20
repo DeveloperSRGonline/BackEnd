@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 const mongoose = require('mongoose')
 
 // async function means this function will handle asynchronous operations
@@ -20,3 +21,19 @@ async function connectToDB() {
 
 //finally export connectToDB function and use it in server.js
 module.exports = connectToDB;
+=======
+// is file ka kaam hota hai ki db.js file ka logic kis tarike se liiho ge uska logic aap yaha likhte ho
+
+const mongoose = require('mongoose')
+
+async function connectToDB(){
+    try{
+        await mongoose.connect(process.env.MONGO_URI)
+        console.log('Server is connected successfully!');
+    }catch(err){
+        console.log('Error in connecting to DataBase : ',err);
+    }
+}
+
+module.exports = connectToDB;// use it in server.js
+>>>>>>> a6942f1333efaaef66b438133ce6d465941ebd5d

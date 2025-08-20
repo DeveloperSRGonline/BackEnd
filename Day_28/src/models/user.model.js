@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // Import mongoose library (used for working with MongoDB in Node.js)
 const mongoose = require("mongoose");
 
@@ -38,3 +39,35 @@ const userModel = mongoose.model("user", userSchema);
 
 // Export the model so you can use it in other files (e.g., routes, controllers)
 module.exports = userModel ;
+=======
+const mongoose = require('mongoose')
+
+
+const userSchema = mongoose.Schema({
+    email:{
+        type:String,
+        unique:true
+    },
+    fullname:{
+        firstName:{
+            type:String,
+            required:true
+        },
+        lastName:{
+            type:String,
+            required:true
+        }
+    },
+    password:{
+        type:String
+    }
+},{
+    timestamps:true
+})
+
+
+const userModel = mongoose.model('user',userSchema)
+
+
+module.exports = userModel;
+>>>>>>> a6942f1333efaaef66b438133ce6d465941ebd5d
