@@ -16,9 +16,13 @@ async function createChat(req,res){
         chat:{
             _id:chat._id,
             title:chat.title,
-            lastActivity:chat.lastActivity
+            lastActivity:chat.lastActivity,
+            chat:chat.chat,
+            user:chat.user
         }
     
     })
-
 }
+
+
+module.exports = createChat;
