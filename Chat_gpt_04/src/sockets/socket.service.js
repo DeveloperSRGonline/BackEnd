@@ -30,7 +30,7 @@ function initSocketServer(httpServer){
         socket.on("ai-message", async(messagePayload) =>{
             // console.log(messagePayload);
             
-            // creating the message using data came from the frontend and saving it in db
+            // user ne jo message kiya hai use database mein save karenge
             const message = await messageModel.create({
                 chat:messagePayload.chat,
                 user:socket.user._id,
@@ -38,33 +38,34 @@ function initSocketServer(httpServer){
                 role:"user"
             })
             
+            // user ke message ko vector mein convert karnege with gemini embading model(for long term memory)
             const vectors = await aiService.generateVector(messagePayload.content)
             
+
             const memory =  await queryMemory({
                 queryVector:vectors,
                 limit:3,
                 metadata:{}
             })
+
+            // vector ko vector database mein save kar rahe hai
             await createMemory({
                 vectors,
-                messageId:message._id,
-                metadata:{
-                    chat:messagePayload.chat,
-                    user:socket.user._id,
-                    text:messagePayload.content
+                messageId:message._id,// message ki same id vector ko 
+                metadata:{ // data ki aur kya kya property hai
+                    chat:messagePayload.chat,// is chat se belong karta hai
+                    user:socket.user._id,// is user ka message hai
+                    text:messagePayload.content // message ka text 
                 }
             })
 
-
-            console.log("memory",memory);
-
-            // taking the chathistory from the db
+            // short term memory using mongodb data
             const chatHistory = (await messageModel.find({
                 chat:messagePayload.chat,// using the id came with message
             }).sort({createdAt:-1}).limit(20).lean()).reverse();
 
 
-            // ai ko chat history de rahe hai
+            // feeding short term memory to the ai using that ai gives response
             const response = await aiService.generateResponse(chatHistory.map((item)=>{
                 return {
                     role:item.role,
@@ -72,7 +73,7 @@ function initSocketServer(httpServer){
                 }
             }))
 
-            // creating model message and saving in db
+            // ai jo bhi message karega use mongodb mein save karenge
             const responseMessage = await messageModel.create({
                 chat:messagePayload.chat,
                 user:socket.user._id,
@@ -80,7 +81,10 @@ function initSocketServer(httpServer){
                 role:"model"
             })
 
+            // ai generated message ko again vector mein convert using gemini vector generator
             const responseVectors = await aiService.generateVector(response)
+
+            // saving that ai response vector in vector database
             await createMemory({
                 vectors:responseVectors,
                 messageId:responseMessage._id,

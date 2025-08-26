@@ -1,0 +1,8 @@
+Saara data pinecone mein hi kyo nahi save kar rahe directly mongodb mein kyo save kar rahe ==> "pinecone mein saara data save karenge toh uski search ability kam ho jati hai"
+
+
+let say hum ek nai chat create kar rahe : toh mongodb mein abhi kuchh bhi nahi hoga toh vo saara data vector database se utha rahe honge 
+
+vector database ki jo memory hogi vo independent memory vo kisi chat ke specific nahi hogi
+
+now jo bhi memory aa rahi hai vo vector database se aa rahai hai
