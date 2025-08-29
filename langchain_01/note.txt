@@ -1,0 +1,2 @@
+jab   "type": "commonjs", toh hum require use karte the 
+and jab   "type": "module",  tab hum import statement ka use karenge 
