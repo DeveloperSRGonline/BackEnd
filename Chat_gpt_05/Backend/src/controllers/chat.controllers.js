@@ -66,9 +66,33 @@ async function sendMessage(req,res){
     })
 }
 
+async function updateChat(req,res){
+    const {chatId} = req.params;
+    const {title} = req.body;
+
+    const chat = await chatModel.findByIdAndUpdate(chatId,{
+        title
+    },{new:true});
+
+    res.status(200).json({
+        message:"Chat updated successfully",
+        chat
+    })
+}
+
+async function deleteChat(req,res){
+    const {chatId} = req.params;
+
+    const chat = await chatModel.findByIdAndDelete(chatId);
+
+    console.log('Chat deleted successfully');
+}
+
 module.exports = {
     createChat,
     getChats,
     getMessages,
-    sendMessage
+    sendMessage,
+    updateChat,
+    deleteChat
 }

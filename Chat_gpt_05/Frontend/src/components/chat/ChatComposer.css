@@ -29,8 +29,8 @@
 
 .composer-surface:focus-within {
     background: #232324;
-    border-color: #565759;
-    box-shadow: 0 0 0 1px #565759, 0 0 0 4px rgba(86,87,89,.25);
+    border-color: #c0c0c0;
+    box-shadow: 0 0 0 1px #565759, 0 0 0 4px rgba(136, 136, 136, 0.25);
 }
 
 .composer-field { flex: 1; position: relative; }

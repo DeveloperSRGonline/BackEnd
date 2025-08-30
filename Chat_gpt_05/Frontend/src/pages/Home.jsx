@@ -8,16 +8,17 @@ import "../components/chat/ChatLayout.css";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import {
-  ensureInitialChat,
   startNewChat,
   selectChat,
   setInput,
   sendingStarted,
   sendingFinished,
-  addUserMessage,
-  addAIMessage,
   setChats,
+  setMessagesForChat,
+  renameChat,
+  onDeleteChat,
 } from "../store/ChatSlice.js";
+import { Dot } from "lucide-react";
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -28,113 +29,392 @@ const Home = () => {
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
   const [socket, setSocket] = useState(null);
 
-  const activeChat = chats.find((c) => c.id === activeChatId) || null;
+  const activeChat = chats.find((c) => c._id === activeChatId) || null;
 
-  const [messages, setMessages] = useState([
-    // {
-    //   type: 'user',
-    //   content: 'Hello, how can I help you today?'
-    // },
-    // {
-    //   type: 'ai',
-    //   content: 'Hi there! I need assistance with my account.'
-    // }
-  ]);
+  // Effect to load messages when active chat changes
+  useEffect(() => {
+    if (activeChatId) {
+      getMessages(activeChatId);
+    } else {
+      setMessages([]);
+    }
+  }, [activeChatId]);
 
-  const handleNewChat = async () => {
-    // Prompt user for title of new chat, fallback to 'New Chat'
-    let title = window.prompt("Enter a title for the new chat:", "");
-    if (title) title = title.trim();
-    if (!title) return;
-    const response = await axios.post(
-      "http://localhost:3000/api/chat/",
-      { title },
-      { withCredentials: true }
-    );
+  // Store messages for each chat
+  const [messagesMap, setMessagesMap] = useState({});
+  // Current displayed messages
+  const [messages, setMessages] = useState([]);
 
-    getMessages(response.data.chat._id);
-    dispatch(startNewChat(response.data.chat));
-    setSidebarOpen(false);
+  const generateUniqueTitle = () => {
+    const base = "New Chat";
+    let counter = 0;
+    let title = base;
+    const titles = chats.map((c) => c.title);
+
+    while (titles.includes(title)) {
+      counter++;
+      title = `${base} (${counter})`;
+    }
+    return title;
   };
 
-  // Ensure at least one chat exists initially
-  useEffect(() => {
-    axios
-      .get("http://localhost:3000/api/chat/", {
+  const handleNewChat = async () => {
+    try {
+      const title = generateUniqueTitle();
+
+      // Create new chat on the server
+      const response = await axios.post(
+        "http://localhost:3000/api/chat/",
+        { title },
+        { withCredentials: true }
+      );
+
+      if (!response.data.chat) {
+        throw new Error('Failed to create new chat: No chat data received');
+      }
+
+      const newChat = response.data.chat;
+
+      // Update Redux state first
+      dispatch(startNewChat({ 
+        _id: newChat._id,
+        title: newChat.title 
+      }));
+
+      // Clear any existing messages and set up new chat state
+      setMessages([]);
+      setMessagesMap(prev => ({
+        ...prev,
+        [newChat._id]: []
+      }));
+
+      // Make sure the new chat is selected
+      dispatch(selectChat(newChat._id));
+
+      // Clear any existing input
+      dispatch(setInput(""));
+
+      setSidebarOpen(false);
+
+      console.log('New chat created:', newChat); // Debug log
+    } catch (error) {
+      console.error("Failed to create new chat:", error);
+      // Attempt to recover state
+      try {
+        const chatsResponse = await axios.get("http://localhost:3000/api/chat/", {
+          withCredentials: true,
+        });
+        const serverChats = chatsResponse.data.chats || [];
+        dispatch(setChats(serverChats.reverse()));
+      } catch (fetchError) {
+        console.error("Failed to recover state:", fetchError);
+      }
+    }
+  };
+
+  // Function to fetch all chats
+  const fetchChats = async () => {
+    try {
+      const response = await axios.get("http://localhost:3000/api/chat/", {
         withCredentials: true,
-      })
-      .then((response) => {
-        dispatch(setChats(response.data.chats.reverse()));
-      })
-      .catch((err) => {
-        console.error("Failed to fetch chats:", err);
       });
 
-    const tempSocket = io("http://localhost:3000", {
-      withCredentials: true,
-    });
+      const chats = response.data.chats || [];
+      const reversedChats = chats.reverse();
 
-    tempSocket.on("ai-response", (messagePayload) => {
+      // Update Redux state with the latest chats
+      dispatch(setChats(reversedChats));
 
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        {
-          type: "ai",
-          content: messagePayload.content,
-        },
-      ]);
+      // Reset all state if there are no chats
+      if (reversedChats.length === 0) {
+        dispatch(selectChat(null));
+        setMessages([]);
+        // Clear any other related state
+        dispatch(setInput(""));
+        dispatch(sendingFinished());
+      }
 
+      return reversedChats;
+    } catch (err) {
+      console.error("Failed to fetch chats:", err);
+      // Reset all state on error
+      dispatch(setChats([]));
+      dispatch(selectChat(null));
+      setMessages([]);
+      dispatch(setInput(""));
       dispatch(sendingFinished());
-    });
+      return [];
+    }
+  };
 
-    setSocket(tempSocket);
+  // Initialize the app state and socket connection
+  useEffect(() => {
+    let mounted = true;
+
+    const initApp = async () => {
+      if (!mounted) return;
+
+      try {
+        // Reset all state first
+        dispatch(setChats([]));
+        dispatch(selectChat(null));
+        setMessages([]);
+        dispatch(setInput(""));
+        dispatch(sendingFinished());
+
+        // Fetch initial chats
+        const initialChats = await fetchChats();
+
+        // If there are chats, select the first one
+        if (initialChats.length > 0) {
+          const firstChat = initialChats[0];
+          dispatch(selectChat(firstChat._id));
+
+          // Load messages for the first chat
+          try {
+            const messagesResponse = await axios.get(
+              `http://localhost:3000/api/chat/messages/${firstChat._id}`,
+              { withCredentials: true }
+            );
+            if (mounted) {
+              setMessages(messagesResponse.data.messages || []);
+            }
+          } catch (error) {
+            console.error("Failed to fetch initial messages:", error);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to initialize app:", error);
+      }
+
+      // Setup socket connection
+      if (!socket) {
+        const tempSocket = io("http://localhost:3000", {
+          withCredentials: true,
+          reconnection: true,
+          reconnectionDelay: 1000,
+        });
+
+        tempSocket.on("connect", () => {
+          console.log("Socket connected");
+        });
+
+        tempSocket.on("ai-response", (messagePayload) => {
+          if (!mounted) return;
+
+          const newMessage = {
+            role: "ai",
+            content: messagePayload.content,
+            ts: Date.now(),
+          };
+          
+          // Update both the messages map and current messages
+          setMessagesMap(prev => ({
+            ...prev,
+            [activeChatId]: [...(prev[activeChatId] || []), newMessage]
+          }));
+          setMessages(prev => [...prev, newMessage]);
+
+          dispatch(sendingFinished());
+        });
+
+        tempSocket.on("disconnect", () => {
+          console.log("Socket disconnected");
+        });
+
+        setSocket(tempSocket);
+      }
+    };
+
+    initApp();
+
+    // Cleanup function
+    return () => {
+      mounted = false;
+      if (socket) {
+        socket.disconnect();
+      }
+    };
   }, []);
 
   const sendMessage = async () => {
     const trimmed = input.trim();
     if (!trimmed || !activeChatId || isSending) return;
-    dispatch(sendingStarted());
+    
+    try {
+      dispatch(sendingStarted());
 
-    const newMessages = [
-      ...messages,
-      {
-        type: "user",
+      const newMessage = {
+        role: "user",
         content: trimmed,
-      },
-    ];
+      };
 
-    setMessages(newMessages);
-    dispatch(setInput(""));
+      setMessages(prevMessages => [...prevMessages, newMessage]);
+      dispatch(setInput(""));
 
-    socket.emit("ai-message", {
-      chat: activeChatId,
-      content: trimmed,
-    });
+      // Update messages map to keep state in sync
+      setMessagesMap(prev => ({
+        ...prev,
+        [activeChatId]: [...(prev[activeChatId] || []), newMessage]
+      }));
 
-    // try {
-    //   const reply = await fakeAIReply(trimmed);
-    //   dispatch(addAIMessage(activeChatId, reply));
-    // } catch {
-    //   dispatch(addAIMessage(activeChatId, 'Error fetching AI response.', true));
-    // } finally {
-    //   dispatch(sendingFinished());
-    // }
+      socket.emit("ai-message", {
+        chat: activeChatId,
+        content: trimmed,
+      });
+    } catch (error) {
+      console.error("Failed to send message:", error);
+      dispatch(sendingFinished());
+    }
   };
 
   const getMessages = async (chatId) => {
-    const response = await axios.get(
-      `http://localhost:3000/api/chat/messages/${chatId}`,
-      { withCredentials: true }
-    );
+    if (!chatId) return;
+    
+    try {
+      const response = await axios.get(
+        `http://localhost:3000/api/chat/messages/${chatId}`,
+        { withCredentials: true }
+      );
 
-    setMessages(
-      response.data.messages.map((m) => ({
-        type: m.role === "user" ? "user" : "ai",
+      // Format messages with proper role and content
+      const formattedMessages = (response.data.messages || []).map(m => ({
+        role: m.role || 'ai',  // default to 'ai' if role is missing
         content: m.content,
-      }))
-    );
+        id: m._id,
+        ts: m.createdAt || Date.now(),
+      }));
+      
+      // Store messages in the map and update current messages
+      setMessagesMap(prev => ({
+        ...prev,
+        [chatId]: formattedMessages
+      }));
+      setMessages(formattedMessages);
+      
+      // Update messages in Redux store
+      dispatch(setMessagesForChat({
+        chatId,
+        messages: formattedMessages
+      }));
+
+    } catch (error) {
+      console.error('Failed to fetch messages for chat:', chatId, error);
+      setMessagesMap(prev => ({
+        ...prev,
+        [chatId]: []
+      }));
+      setMessages([]);
+    }
   };
 
+  const [deletingChatId, setDeletingChatId] = useState(null);
+
+  const deleteHandler = async (chatId) => {
+    if (!chatId) return;
+
+    try {
+      // Optimistically update UI first
+      const updatedChats = chats.filter(chat => chat._id !== chatId);
+      
+      // Clear all states related to the deleted chat
+      // 1. Clear from messagesMap
+      setMessagesMap(prev => {
+        const newMap = { ...prev };
+        delete newMap[chatId];
+        return newMap;
+      });
+
+      // 2. Clear current messages if it's the active chat
+      if (activeChatId === chatId) {
+        setMessages([]);
+      }
+
+      // 3. Clear from Redux store
+      dispatch(onDeleteChat({ chatId }));
+
+      // Delete from server
+      await axios.delete(`http://localhost:3000/api/chat/${chatId}`, {
+        withCredentials: true,
+      });
+
+      // Handle active chat changes after successful deletion
+      if (activeChatId === chatId) {
+        if (updatedChats.length > 0) {
+          // Switch to next available chat
+          const nextChat = updatedChats[0];
+          dispatch(selectChat(nextChat._id));
+          
+          // Load messages for next chat
+          if (messagesMap[nextChat._id]) {
+            // Use cached messages if available
+            setMessages(messagesMap[nextChat._id]);
+            dispatch(setMessagesForChat({
+              chatId: nextChat._id,
+              messages: messagesMap[nextChat._id]
+            }));
+          } else {
+            // Fetch messages for next chat
+            try {
+              const messagesResponse = await axios.get(
+                `http://localhost:3000/api/chat/messages/${nextChat._id}`,
+                { withCredentials: true }
+              );
+              const newMessages = messagesResponse.data.messages || [];
+              setMessages(newMessages);
+              setMessagesMap(prev => ({
+                ...prev,
+                [nextChat._id]: newMessages
+              }));
+              dispatch(setMessagesForChat({
+                chatId: nextChat._id,
+                messages: newMessages
+              }));
+            } catch (error) {
+              console.error('Failed to load messages for next chat:', error);
+              setMessages([]);
+            }
+          }
+        } else {
+          // No chats left - clear all states
+          dispatch(setChats([])); // Clear chats first
+          dispatch(selectChat(null));
+          dispatch(setInput(""));
+          setMessages([]);
+          setMessagesMap({});
+          
+          // Force a clean slate for the Redux store
+          dispatch({ type: 'chat/reset' }); // This will trigger a fresh state
+        }
+      }
+    } catch (err) {
+      console.error("Failed to delete chat:", err);
+      // Restore the chat in case of error
+      try {
+        const chatsResponse = await axios.get("http://localhost:3000/api/chat/", {
+          withCredentials: true,
+        });
+        const serverChats = chatsResponse.data.chats || [];
+        dispatch(setChats(serverChats.reverse()));
+        
+        // Restore messages for the active chat if needed
+        if (activeChatId) {
+          const messagesResponse = await axios.get(
+            `http://localhost:3000/api/chat/messages/${activeChatId}`,
+            { withCredentials: true }
+          );
+          const restoredMessages = messagesResponse.data.messages || [];
+          setMessages(restoredMessages);
+          setMessagesMap(prev => ({
+            ...prev,
+            [activeChatId]: restoredMessages
+          }));
+        }
+      } catch (error) {
+        console.error("Failed to restore state:", error);
+      }
+    }
+  };
   return (
     <div className="chat-layout minimal">
       <ChatMobileBar
@@ -144,19 +424,52 @@ const Home = () => {
       <ChatSidebar
         chats={chats}
         activeChatId={activeChatId}
-        onSelectChat={(id) => {
-          dispatch(selectChat(id));
-          setSidebarOpen(false);
-          getMessages(id);
+        onSelectChat={async (id) => {
+          if (!id) return;
+          
+          try {
+            dispatch(selectChat(id));
+            setSidebarOpen(false);
+            
+            // Set loading state and show cached messages if available
+            if (messagesMap[id]) {
+              setMessages(messagesMap[id]);
+            } else {
+              setMessages([]); // Clear current messages while loading
+              await getMessages(id);
+            }
+            
+          } catch (error) {
+            console.error('Failed to select chat:', error);
+            setMessages([]);
+          }
         }}
+        onDeleteChat={deleteHandler}
         onNewChat={handleNewChat}
+        onRenameChat={async (chatId, newTitle) => {
+          // Redux update
+          dispatch(renameChat({ chatId, newTitle }));
+
+          // Backend sync
+          try {
+            await axios.put(
+              `http://localhost:3000/api/chat/${chatId}`,
+              { title: newTitle },
+              { withCredentials: true }
+            );
+          } catch (err) {
+            console.error("Failed to rename chat:", err);
+          }
+        }}
         open={sidebarOpen}
+        deletingChatId={deletingChatId}
       />
+
       <main className="chat-main" role="main">
         {messages.length === 0 && (
           <div className="chat-welcome" aria-hidden="true">
             <div className="chip">Early Preview</div>
-            <h1>ChatGPT Clone</h1>
+            <h1>SRG AI</h1>
             <p>
               Ask anything. Paste text, brainstorm ideas, or get quick
               explanations. Your chats stay in the sidebar so you can pick up
@@ -164,9 +477,12 @@ const Home = () => {
             </p>
           </div>
         )}
-        <ChatMessages messages={messages} isSending={isSending} />
-        {
-          // activeChatId &&
+        <ChatMessages 
+          messages={messages} 
+          isSending={isSending} 
+          activeChatId={activeChatId}
+        />
+        {activeChatId && 
           <ChatComposer
             input={input}
             setInput={(v) => dispatch(setInput(v))}

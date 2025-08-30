@@ -78,14 +78,6 @@
     border-color: #1e1e1e;
 }
 
-.chat-layout.minimal .small-btn {
-    background: #111;
-    border-color: #2a2a2a;
-}
-
-.chat-layout.minimal .small-btn:hover {
-    background: #181818;
-}
 
 .chat-layout.minimal .chat-list-item {
     background: #0d0d0d;
