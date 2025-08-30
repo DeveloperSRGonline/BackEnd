@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Copy, Check, Edit2, RefreshCw, Volume2, VolumeX, Pencil } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 import "./ChatMessages.css";
 
 const ChatMessages = ({ messages, isSending, onRegenerate, onEditMessage }) => {
@@ -62,7 +63,13 @@ const ChatMessages = ({ messages, isSending, onRegenerate, onEditMessage }) => {
               </div>
             </div>
           ) : (
-            <div className="msg-bubble">{m.content}</div>
+            <div className={`msg-bubble ${m.role === "ai" ? "markdown-body" : ""}`}>
+              {m.role === "ai" ? (
+                <ReactMarkdown>{m.content}</ReactMarkdown>
+              ) : (
+                m.content
+              )}
+            </div>
           )}
           <div
             className="msg-actions"
