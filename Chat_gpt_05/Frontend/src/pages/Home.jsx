@@ -415,6 +415,96 @@ const Home = () => {
       }
     }
   };
+  // Handler for regenerating AI responses
+  const handleRegenerate = async (messageIndex) => {
+    if (!activeChatId) return;
+
+    const messageToRegenerate = messages[messageIndex];
+    if (!messageToRegenerate || messageToRegenerate.role !== 'ai') return;
+
+    // Get the user message that prompted this AI response
+    let userMessageContent = '';
+    for (let i = messageIndex - 1; i >= 0; i--) {
+      if (messages[i].role === 'user') {
+        userMessageContent = messages[i].content;
+        break;
+      }
+    }
+
+    if (!userMessageContent) return;
+
+    try {
+      // Remove the AI message we're regenerating
+      const updatedMessages = messages.filter((_, idx) => idx !== messageIndex);
+      setMessages(updatedMessages);
+      dispatch(sendingStarted());
+
+      // Re-emit the original user message to get a new response
+      socket.emit("ai-message", {
+        chat: activeChatId,
+        content: userMessageContent,
+      });
+    } catch (error) {
+      console.error("Failed to regenerate response:", error);
+      dispatch(sendingFinished());
+    }
+  };
+
+  // Handler for editing messages
+  const handleEditMessage = async (messageIndex, newContent, resend = false) => {
+    if (!activeChatId) return;
+
+    const messageToEdit = messages[messageIndex];
+    if (!messageToEdit) return;
+
+    try {
+      // Update local state optimistically
+      const updatedMessages = [...messages];
+      updatedMessages[messageIndex] = {
+        ...messageToEdit,
+        content: newContent
+      };
+
+      // If resending, remove all messages after this one
+      if (resend) {
+        updatedMessages.splice(messageIndex + 1);
+      }
+
+      setMessages(updatedMessages);
+      
+      // Update messages map
+      setMessagesMap(prev => ({
+        ...prev,
+        [activeChatId]: updatedMessages
+      }));
+
+      // If resend is true, send the edited message to AI
+      if (resend) {
+        dispatch(sendingStarted());
+        socket.emit("ai-message", {
+          chat: activeChatId,
+          content: newContent,
+        });
+      }
+
+      // Update in backend (if you have an API endpoint for this)
+      // await axios.put(`http://localhost:3000/api/chat/messages/${messageToEdit.id}`, {
+      //   content: newContent
+      // }, { withCredentials: true });
+    } catch (error) {
+      console.error("Failed to edit message:", error);
+      // Restore original message on error
+      setMessages(messages);
+      setMessagesMap(prev => ({
+        ...prev,
+        [activeChatId]: messages
+      }));
+      if (resend) {
+        dispatch(sendingFinished());
+      }
+    }
+  };
+
   return (
     <div className="chat-layout minimal">
       <ChatMobileBar
@@ -481,6 +571,8 @@ const Home = () => {
           messages={messages} 
           isSending={isSending} 
           activeChatId={activeChatId}
+          onRegenerate={handleRegenerate}
+          onEditMessage={handleEditMessage}
         />
         {activeChatId && 
           <ChatComposer

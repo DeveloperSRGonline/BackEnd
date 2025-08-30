@@ -1,7 +1,25 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { Copy, Check, Edit2, RefreshCw, Volume2, VolumeX, Pencil } from "lucide-react";
 import "./ChatMessages.css";
 
-const ChatMessages = ({ messages, isSending }) => {
+const ChatMessages = ({ messages, isSending, onRegenerate, onEditMessage }) => {
+  const [speaking, setSpeaking] = useState(false);
+  const [editingMessageId, setEditingMessageId] = useState(null);
+  const [editContent, setEditContent] = useState("");
+  const [copiedMessageId, setCopiedMessageId] = useState(null);
+  const speechRef = useRef(null);
+
+  const handleCopy = async (content, index) => {
+    try {
+      await navigator.clipboard.writeText(content);
+      setCopiedMessageId(index);
+      setTimeout(() => {
+        setCopiedMessageId(null);
+      }, 500);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  };
   const bottomRef = useRef(null);
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -14,7 +32,38 @@ const ChatMessages = ({ messages, isSending }) => {
           <div className="msg-role" aria-hidden="true">
             {m.role === "user" ? "You" : "AI"}
           </div>
-          <div className="msg-bubble">{m.content}</div>
+          {editingMessageId === index ? (
+            <div className="msg-edit">
+              <textarea
+                value={editContent}
+                onChange={(e) => setEditContent(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    onEditMessage(index, editContent, true); // Send to AI on Enter
+                    setEditingMessageId(null);
+                  } else if (e.key === 'Escape') {
+                    setEditingMessageId(null);
+                  }
+                }}
+                autoFocus
+              />
+              <div className="edit-actions">
+                <button onClick={() => setEditingMessageId(null)}>Cancel</button>
+                <button 
+                  className="send-btn"
+                  onClick={() => {
+                    onEditMessage(index, editContent, true); // true indicates resend to AI
+                    setEditingMessageId(null);
+                  }}
+                >
+                  Send
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="msg-bubble">{m.content}</div>
+          )}
           <div
             className="msg-actions"
             role="group"
@@ -22,61 +71,61 @@ const ChatMessages = ({ messages, isSending }) => {
           >
             <button
               type="button"
+              className={`action-btn tooltip ${copiedMessageId === index ? 'copied' : ''}`}
               aria-label="Copy message"
-              onClick={() => navigator.clipboard.writeText(m.content)}
+              onClick={() => handleCopy(m.content, index)}
             >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-              </svg>
+              <span className="tooltip-text">{copiedMessageId === index ? 'Copied!' : 'Copy'}</span>
+              {copiedMessageId === index ? <Check size={18} /> : <Copy size={18} />}
             </button>
+            
+            {m.role === "user" && (
+              <button
+                type="button"
+                className="action-btn tooltip"
+                aria-label="Edit message"
+                onClick={() => {
+                  setEditingMessageId(index);
+                  setEditContent(m.content);
+                }}
+              >
+                <span className="tooltip-text">Edit</span>
+                <Pencil size={18} />
+              </button>
+            )}
+
             {m.role === "ai" && (
               <>
-                <button type="button" aria-label="Like response">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path d="M7 10v11" />
-                    <path d="M15 21H9a2 2 0 0 1-2-2v-9l5-7 1 1a2 2 0 0 1 .5 1.3V9h5a2 2 0 0 1 2 2l-2 8a2 2 0 0 1-2 2Z" />
-                  </svg>
-                </button>
-                <button type="button" aria-label="Dislike response">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path d="M17 14V3" />
-                    <path d="M9 3h6a2 2 0 0 1 2 2v9l-5 7-1-1a2 2 0 0 1-.5-1.3V15H5a2 2 0 0 1-2-2l2-8a2 2 0 0 1 2-2Z" />
-                  </svg>
-                </button>
                 <button
                   type="button"
-                  aria-label="Speak message"
+                  className={`action-btn tooltip ${speaking ? 'active' : ''}`}
+                  aria-label={speaking ? "Stop speaking" : "Speak message"}
                   onClick={() => {
-                    try {
-                      const u = new SpeechSynthesisUtterance(m.content);
-                      speechSynthesis.speak(u);
-                    } catch {
-                      /* speech synthesis unsupported */
+                    if (speaking) {
+                      speechSynthesis.cancel();
+                      setSpeaking(false);
+                    } else {
+                      const utterance = new SpeechSynthesisUtterance(m.content);
+                      utterance.onend = () => setSpeaking(false);
+                      utterance.onerror = () => setSpeaking(false);
+                      speechRef.current = utterance;
+                      setSpeaking(true);
+                      speechSynthesis.speak(utterance);
                     }
                   }}
                 >
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path d="M5 8v8" />
-                    <path d="M8 4v16" />
-                    <path d="M12 2v20" />
-                    <path d="M19 5c1.5 2 1.5 12 0 14" />
-                    <path d="M16 8c.8 1 1 7 0 8" />
-                  </svg>
+                  <span className="tooltip-text">{speaking ? "Stop" : "Speak"}</span>
+                  {speaking ? <VolumeX size={18} /> : <Volume2 size={18} />}
                 </button>
+
                 <button
                   type="button"
-                  aria-label="Regenerate"
-                  onClick={() => {
-                    /* placeholder for regenerate logic */
-                  }}
+                  className="action-btn tooltip"
+                  aria-label="Regenerate response"
+                  onClick={() => onRegenerate(index)}
                 >
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path d="M2 12A10 10 0 0 1 12 2c2.5 0 4.8 1 6.5 2.5L22 8" />
-                    <path d="M22 2v6h-6" />
-                    <path d="M22 12a10 10 0 0 1-10 10c-2.5 0-4.8-1-6.5-2.5L2 16" />
-                    <path d="M2 22v-6h6" />
-                  </svg>
+                  <span className="tooltip-text">Regenerate</span>
+                  <RefreshCw size={18} />
                 </button>
               </>
             )}

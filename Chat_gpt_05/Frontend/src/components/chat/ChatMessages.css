@@ -5,7 +5,7 @@
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: var(--space-5);
+    gap: 1rem;
     max-width: 820px;
     padding: 0 1.5rem;
 }
@@ -28,6 +28,8 @@
     flex-direction: column;
     max-width: 780px;
     position: relative;
+    margin-bottom: 3rem; /* Add space below for the action buttons */
+    padding-bottom: 0.5rem; /* Add some padding to ensure hover state works */
 }
 
 .msg-user {
@@ -98,34 +100,98 @@
     pointer-events: auto;
 }
 
-.msg-actions button {
-    width: 30px;
-    height: 30px;
+.msg-actions {
+    position: absolute;
+    right: 0;
+    bottom: -45px; /* Position below the message */
     background: #0d0d0d;
     border: 1px solid #1e1e1e;
+    padding: 4px;
+    border-radius: 8px;
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transform: translateY(-10px); /* Changed direction for animation */
+    transition: all 0.2s ease-out;
+    z-index: 10; /* Ensure it stays above other messages */
+}
+
+.msg:hover .msg-actions {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.action-btn {
+    width: 32px;
+    height: 32px;
+    background: none;
+    border: none;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: 8px;
+    border-radius: 6px;
     cursor: pointer;
     color: #6a6a6a;
     padding: 0;
+    transition: all 0.2s ease-out;
+    position: relative;
 }
 
-.msg-actions button:hover {
+.action-btn:hover {
     background: #151515;
     color: #ffffff;
+    transform: scale(1.1);
 }
 
-.msg-actions button:focus-visible {
-    outline: 2px solid #ffffff;
-    outline-offset: 2px;
+.action-btn.active {
+    color: #10B981;
 }
 
-.msg-actions svg {
-    width: 16px;
-    height: 16px;
-    stroke-width: 1.75;
+.action-btn.copied {
+    color: #10B981;
+    animation: popScale 0.3s ease-in-out;
+}
+
+@keyframes popScale {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.action-btn svg {
+    width: 18px;
+    height: 18px;
+    stroke-width: 2;
+}
+
+/* Tooltip styles */
+.tooltip {
+    position: relative;
+}
+
+.tooltip-text {
+    visibility: hidden;
+    position: absolute;
+    top: 100%; /* Changed to show below */
+    left: 50%;
+    transform: translateX(-50%) translateY(5px);
+    background: #1e1e1e;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: all 0.2s ease-out;
+    margin-top: 5px; /* Add some space between icon and tooltip */
+    z-index: 20; /* Ensure tooltip stays on top */
+}
+
+.tooltip:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+    pointer-events: auto; /* Allow interaction with the tooltip */
 }
 
 /* Subtle fade in for new AI messages */
@@ -143,6 +209,69 @@
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+/* Message edit styles */
+.msg-edit {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.msg-edit textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 12px;
+    background: #0d0d0d;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    color: #ffffff;
+    font-size: inherit;
+    font-family: inherit;
+    resize: vertical;
+    transition: border-color 0.2s ease;
+}
+
+.msg-edit textarea:focus {
+    outline: none;
+    border-color: #3a3a3a;
+}
+
+.edit-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.edit-actions button {
+    padding: 6px 16px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.edit-actions button:first-child {
+    background: #1e1e1e;
+    color: #ffffff;
+}
+
+.edit-actions .save-btn {
+    background: #2563eb;
+    color: white;
+}
+
+.edit-actions .send-btn {
+    background: #059669; /* Green color for resend action */
+    color: white;
+}
+
+.edit-actions button:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.1);
 }
 
 /* Typing dots */
