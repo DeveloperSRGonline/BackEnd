@@ -147,7 +147,7 @@ const ChatMessages = ({ messages, isSending, onRegenerate, onEditMessage }) => {
           <div className="msg-bubble typing-dots" aria-label="AI is typing">
             <span />
             <span />
-            <span />
+            <span />   
           </div>
         </div>
       )}

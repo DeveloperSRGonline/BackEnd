@@ -122,7 +122,7 @@
 .markdown-body pre {
     padding: 1em;
     overflow: auto;
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: rgba(0, 0, 0, 0.2);  
     border-radius: 8px;
     margin: 0.75em 0;
 }
