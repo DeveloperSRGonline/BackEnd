@@ -125,4 +125,33 @@ async function generateVector(content) {
   return response.embeddings[0].values;
 }
 
-module.exports = { generateResponse, generateVector };
+async function generateImgDetails(base64ImageFile) {
+  const contents = [
+    {
+      inlineData: {
+        mimeType: "image/jpeg",
+        data: base64ImageFile,
+      },
+    },
+    { text: "Understand the image and tell what is img about" },
+  ];
+
+  const response = await ai.models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: contents,
+    systemInstruction: `
+     You are an assistant that generates **short, structured, and information-rich descriptions of images**.  
+Keep answers concise (max 3–5 lines per section) but cover all important details.  
+Always follow this format:
+
+[Category]: General type of the image (e.g., Landscape, Portrait, Object).  
+[Main Subject]: The primary subject of the image.  
+[Key Elements]: List of important features (sky, sun, mountains, foliage, architecture, water, objects).  
+[Colors & Mood]: Dominant colors and overall atmosphere.  
+[Context]: Style, cultural influence, or special notes.
+    `,
+  });
+  return response.text;
+}
+
+module.exports = { generateResponse, generateVector, generateImgDetails };

@@ -1,5 +1,6 @@
 import React, { useCallback, useRef, useLayoutEffect } from 'react';
 import './ChatComposer.css';
+import ImgInput from './ImgInput';
 
 // NOTE: Public API (props) kept identical for drop-in upgrade
 const ChatComposer = ({ input, setInput, onSend, isSending }) => {
@@ -23,6 +24,7 @@ const ChatComposer = ({ input, setInput, onSend, isSending }) => {
   return (
     <form className="composer" onSubmit={e => { e.preventDefault(); if (input.trim()) onSend(); }}>
       <div className="composer-surface" data-state={isSending ? 'sending' : undefined}>
+        <ImgInput />
         <div className="composer-field">
           <textarea
             ref={textareaRef}

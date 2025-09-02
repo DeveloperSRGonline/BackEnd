@@ -7,6 +7,8 @@ const cors = require('cors')
 // requiring routes
 const authRoutes = require('./routes/auth.routes')
 const chatRoutes = require('../src/routes/chat.routes')
+const imgRoutes = require('../src/routes/img.routes')
+
 
 
 const app = express()
@@ -24,6 +26,7 @@ app.use(cookieParser())
 // using routes
 app.use('/api/auth', authRoutes)
 app.use('/api/chat',chatRoutes)
+app.use('/api/img',imgRoutes)
 
 
 
